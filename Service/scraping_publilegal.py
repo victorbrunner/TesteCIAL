@@ -1,4 +1,6 @@
 import re
+import time
+
 from playwright.sync_api import Page, expect, sync_playwright
 
 class ScrapingPublilegal():
@@ -19,13 +21,37 @@ class ScrapingPublilegal():
             div_parente = page.locator(".jet-listing-grid__items.grid-col-desk-1.grid-col-tablet-1.grid-col-mobile-1.jet-listing-grid--237")
             divs_filhas = div_parente.locator("div").all()
 
+            time.sleep(5)
+
             for div_filha in divs_filhas:
-                print(div_filha.inner_text())
-                secao = div_filha.locator('.elementor-section elementor-top-section elementor-element elementor-element-471232f elementor-section-content-middle elementor-section-boxed elementor-section-height-default elementor-section-height-default')
-                div = secao.locator('.elementor-container elementor-column-gap-custom')
-                div2 = div.locator('.elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-c8dea02')
-                dados = div2.locator('.elementor-widget-wrap elementor-element-populated')
-                razao_social = dados.locator('.elementor-heading-title elementor-size-default').inner_text()
+                dados_pagina = self.get_dados_pagina(div_filha=div_filha)
+
                 print('')
 
             print('')
+
+    def get_dados_pagina(self, div_filha):
+        try:
+            textos = div_filha.inner_text()
+
+            pattern_empresa = r"Empresa:\n(.*)\nData:"
+            pattern_data = r"Data:\n(.*)\nSeção:"
+            pattern_secao = r"Seção:\n(.*)\nDisponível:"
+
+            match_empresa = re.search(pattern_empresa, textos)
+            match_data = re.search(pattern_data, textos)
+            match_secao = re.search(pattern_secao, textos)
+
+            if match_empresa and match_data and match_secao:
+                empresa = match_empresa.group(1).strip()
+                data = match_data.group(1).strip()
+                secao = match_secao.group(1).strip()
+            else:
+                empresa = ''
+                data = ''
+                secao = ''
+                print('Dados nao encontrados')
+
+            return {'empresa': empresa, 'data': data, 'secao': secao}
+        except Exception as ex:
+            print(ex)
