@@ -116,6 +116,6 @@ class ScrapingPublilegal():
                 link_balanco = ''
                 print('Dados nao encontrados')
 
-            return {'empresa': empresa, 'data': data, 'secao': secao, 'link_balanco': link_balanco}
+            return {'empresa': empresa, 'data': data, 'tipo': secao, 'link_balanco': link_balanco}
         except Exception as ex:
             print(ex)
